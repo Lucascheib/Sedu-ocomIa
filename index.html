@@ -120,7 +120,7 @@
   .hero { text-align: center; }
   .hero h1 { font-size: clamp(22px, 7.2vw, 32px); text-wrap: balance; }
   .nowrap { white-space: nowrap; }
-  .hero p.lead { color: var(--muted-foreground); margin: 0 0 20px; text-wrap: balance; }  /* linhas equilibradas, sem palavra sozinha no fim */
+  .hero p.lead { color: var(--muted-foreground); margin: 0 0 18px; font-size: 14.5px; line-height: 1.45; text-wrap: balance; }  /* linhas equilibradas, sem palavra sozinha no fim */
 
   /* Placeholders de imagem/vídeo (substitui pelos teus ficheiros) */
   .media {
@@ -173,9 +173,12 @@
   }
   .pillar p { margin: 4px 0 0; font-size: 14px; color: var(--muted-foreground); line-height: 1.45; }
 
-  /* Quadrado e mais estreito, para caber no 1.º ecrã do telemóvel; mostra o topo dos prints (@, bio, notificações) */
-  .hero .compare { aspect-ratio: 1 / 1; width: min(100%, 300px); margin: 0 auto; box-shadow: 0 0 60px -10px rgba(255, 109, 0, 0.45); }
-  .hero .compare .media > img { object-position: top; }
+  /* Print inteiro (feed incluído), mais estreito para caber no 1.º ecrã do telemóvel.
+     Os selos ANTES/DEPOIS ficam por cima, fora da imagem, para não taparem o @ nem o feed. */
+  .hero .compare { aspect-ratio: 2 / 3; width: min(100%, 210px); margin: 0 auto; box-shadow: 0 0 60px -10px rgba(255, 109, 0, 0.45); }
+  .hero .compare .tag { display: none; }
+  .compare-labels { display: flex; justify-content: space-between; width: min(100%, 210px); margin: 0 auto 8px; }
+  .compare-labels .tag { position: static; font-size: 10px; padding: 4px 10px; }
   .hero .compare .tag { top: auto; bottom: 12px; }  /* no topo tapariam o @ e as notificações */
   .compare {
     position: relative; aspect-ratio: 4 / 5; border-radius: 16px; overflow: hidden;
@@ -378,6 +381,7 @@
     <h1>Faz do teu Instagram uma <span class="text-primary nowrap">máquina de atrair miúdas giras</span> — com IA 100% gratuita.</h1>
     <p class="lead">Mais de 500 prompts de IA prontos a usar que transformam um perfil comum num <strong class="nowrap">perfil atraente</strong> sem cara de IA. Copiar, colar&nbsp;e&nbsp;publicar.</p>
 
+    <div class="compare-labels" aria-hidden="true"><span class="tag before-tag">← Antes</span><span class="tag after-tag">Depois →</span></div>
     <div class="compare" role="slider" aria-label="Comparar antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
       <div class="media" data-label="Perfil DEPOIS (img/perfil-depois.webp)"><img src="img/perfil-depois.webp" alt="O mesmo perfil depois: fotos de estilo de vida, bio arrumada, 25 mensagens e 130 gostos" onerror="this.remove()"></div>
       <div class="media before" data-label="Perfil ANTES (img/perfil-antes.webp)"><img src="img/perfil-antes.webp" alt="Perfil de Instagram antes: 4 selfies fracas, bio desarrumada e nenhuma notificação" onerror="this.remove()"></div>
@@ -948,7 +952,7 @@ function initScrollReveal() {
   add(".hero h1", { direction: "left", delay: 150 });
   add(".hero .lead", { direction: "left", delay: 300 });
   add(".hero .btn", { direction: "left", delay: 450 });
-  add(".hero .compare", { direction: "right", delay: 300, duration: 800 });
+  add(".hero .compare-labels, .hero .compare", { direction: "right", delay: 300, duration: 800 });
   add(".hero .caption, .hero .microcopy, .hero .proof", { direction: "up", delay: 600 });
 
   // Mecanismo: passos numerados da esquerda, imagem antes/depois da direita
