@@ -349,7 +349,7 @@
 
   /* Cookies */
   .cookie {
-    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50; max-width: 456px; margin: 0 auto;
+    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 1000; max-width: 456px; margin: 0 auto;  /* acima do progressive blur (999) */
     background: #1b1d24; border: 1px solid var(--border); border-radius: 16px; padding: 14px;
     box-shadow: 0 20px 40px rgba(0,0,0,.5); font-size: 13px; color: var(--muted-foreground);
   }
@@ -615,6 +615,19 @@
     <p class="disclaimer">Este site não é afiliado à OpenAI, à Google, à Meta nem a nenhuma app de encontros. ChatGPT, Gemini, Instagram, Tinder, Bumble e Hinge são marcas dos respetivos proprietários. Os resultados podem variar de pessoa para pessoa.</p>
   </footer>
 </main>
+
+<!-- Progressive Blur: 8 camadas com blur crescente, cada uma visível numa faixa via máscara.
+     Estilos 100% inline para não depender de nenhum processamento de CSS. -->
+<div id="progressiveBlur" aria-hidden="true" style="position:fixed;bottom:0;left:0;width:100%;height:200px;z-index:999;pointer-events:none;transition:opacity .3s ease;">
+  <div style="position:absolute;inset:0;backdrop-filter:blur(0.25px);-webkit-backdrop-filter:blur(0.25px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,1) 12.5%,rgba(0,0,0,1) 25%,rgba(0,0,0,0) 37.5%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,1) 12.5%,rgba(0,0,0,1) 25%,rgba(0,0,0,0) 37.5%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(0.5px);-webkit-backdrop-filter:blur(0.5px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 12.5%,rgba(0,0,0,1) 25%,rgba(0,0,0,1) 37.5%,rgba(0,0,0,0) 50%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 12.5%,rgba(0,0,0,1) 25%,rgba(0,0,0,1) 37.5%,rgba(0,0,0,0) 50%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(1px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 25%,rgba(0,0,0,1) 37.5%,rgba(0,0,0,1) 50%,rgba(0,0,0,0) 62.5%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 25%,rgba(0,0,0,1) 37.5%,rgba(0,0,0,1) 50%,rgba(0,0,0,0) 62.5%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 37.5%,rgba(0,0,0,1) 50%,rgba(0,0,0,1) 62.5%,rgba(0,0,0,0) 75%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 37.5%,rgba(0,0,0,1) 50%,rgba(0,0,0,1) 62.5%,rgba(0,0,0,0) 75%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 50%,rgba(0,0,0,1) 62.5%,rgba(0,0,0,1) 75%,rgba(0,0,0,0) 87.5%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 50%,rgba(0,0,0,1) 62.5%,rgba(0,0,0,1) 75%,rgba(0,0,0,0) 87.5%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 62.5%,rgba(0,0,0,1) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,0) 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 62.5%,rgba(0,0,0,1) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,0) 100%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,1) 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,1) 100%);"></div>
+  <div style="position:absolute;inset:0;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 87.5%,rgba(0,0,0,1) 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 87.5%,rgba(0,0,0,1) 100%);"></div>
+</div>
 
 <div class="cookie" id="cookie" hidden role="dialog" aria-label="Preferências de cookies">
   <p>Usamos cookies para medir o desempenho dos nossos anúncios. Podes aceitar ou recusar — o site funciona na mesma. <a href="privacidade.html">Saber mais</a></p>
@@ -892,6 +905,99 @@ function fitHeadline() {
   }
 }
 
+// Animações de entrada por scroll (ScrollReveal): estilos inline + IntersectionObserver, sem dependências
+const REVEAL_EASE = "cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+
+function scrollReveal(el, { direction = "up", delay = 0, duration = 700, distance = "40px" } = {}) {
+  const offset = {
+    up: `0, ${distance}`, down: `0, -${distance}`,
+    left: `-${distance}, 0`, right: `${distance}, 0`, none: "0, 0"
+  }[direction];
+  el.style.opacity = "0";
+  el.style.transform = `translate3d(${offset}, 0)`;
+  el.style.transition = `opacity ${duration}ms ${REVEAL_EASE} ${delay}ms, transform ${duration}ms ${REVEAL_EASE} ${delay}ms`;
+  el.style.willChange = "opacity, transform";
+}
+
+function showRevealed(el) {
+  el.style.opacity = "1";
+  el.style.transform = "translate3d(0, 0, 0)";
+  // No fim, devolve o elemento ao CSS normal (ex.: o hover dos botões volta a funcionar)
+  el.addEventListener("transitionend", function done(e) {
+    if (e.propertyName !== "opacity") return;
+    el.style.transition = el.style.transform = el.style.willChange = "";
+    el.removeEventListener("transitionend", done);
+  });
+}
+
+function initScrollReveal() {
+  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const items = new Map();
+  // stagger: atraso entre elementos do grupo; perRow: reinicia o atraso a cada linha (grelhas)
+  const add = (sel, opts = {}, stagger = 0, perRow = 0) =>
+    $$(sel).forEach((el, i) => {
+      if (items.has(el)) return;
+      items.set(el, { ...opts, delay: (opts.delay || 0) + (perRow ? i % perRow : i) * stagger });
+    });
+
+  // Hero: textos da esquerda em cascata, mockup da direita, marcadores de confiança por baixo
+  add(".hero .badge", { direction: "left" });
+  add(".hero h1", { direction: "left", delay: 150 });
+  add(".hero .lead", { direction: "left", delay: 300 });
+  add(".hero .btn", { direction: "left", delay: 450 });
+  add(".hero .compare", { direction: "right", delay: 300, duration: 800 });
+  add(".hero .caption, .hero .microcopy, .hero .proof", { direction: "up", delay: 600 });
+
+  // Mecanismo: passos numerados da esquerda, imagem antes/depois da direita
+  add(".steps li", { direction: "left" }, 150);
+  add("main > section:not(.hero) .compare", { direction: "right", delay: 200, duration: 800 });
+
+  // Preços: cabeçalho primeiro, cartões a seguir
+  add("#oferta > h2", { direction: "up" });
+  add("#timerBox", { direction: "up", delay: 150 });
+  add(".plan", { direction: "up", delay: 350, duration: 800 }, 150);
+
+  // Cabeçalhos das restantes secções, em cascata
+  $$("main > section:not(.hero)").forEach(sec =>
+    [...sec.querySelectorAll(":scope > .eyebrow, :scope > h2, :scope > .section-lead, :scope > .sub-title, .guarantee > .seal")]
+      .forEach((el, i) => !items.has(el) && items.set(el, { direction: "up", delay: i * 150 })));
+
+  // Cartões e listas
+  add(".fit-list li", { direction: "up", delay: 150 }, 150);
+  add(".pillar", { direction: "up" }, 150);
+  add(".gallery .media", { direction: "up" }, 150, 2);
+  add(".sub-title, .feedback .media", { direction: "up" });
+  add(".benefits li", { direction: "up", delay: 150 }, 150);
+  add(".stack", { direction: "up", delay: 150 });
+  add(".recap dl > div", { direction: "up", delay: 150 }, 150);
+  add(".guarantee > p", { direction: "up", delay: 300 });
+  add(".faq details", { direction: "up" }, 150);
+  add(".cta-block", { direction: "up" });
+  add(".final > .btn, .final > .microcopy, .final > .trust, .final > .payments", { direction: "up", delay: 150 }, 150);
+  add("footer", { direction: "up" });
+
+  const io = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    showRevealed(entry.target);
+    io.unobserve(entry.target);  // anima uma vez só
+  }), { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+
+  items.forEach((opts, el) => { scrollReveal(el, opts); io.observe(el); });
+}
+
+// O blur do fundo desaparece no fim da página, para o rodapé ficar legível
+function initProgressiveBlur() {
+  const blur = document.getElementById("progressiveBlur");
+  const update = () => {
+    const atEnd = innerHeight + scrollY >= document.documentElement.scrollHeight - 200;
+    blur.style.opacity = atEnd ? "0" : "1";
+  };
+  addEventListener("scroll", update, { passive: true });
+  addEventListener("resize", update);
+  update();
+}
+
 document.getElementById("year").textContent = new Date().getFullYear();
 fitHeadline();
 addEventListener("resize", fitHeadline);
@@ -900,6 +1006,8 @@ renderPrices();
 startTimer();
 $$(".compare").forEach(initCompare);
 initCookies();
+initScrollReveal();  // depois do renderLists, para apanhar a galeria e os prints
+initProgressiveBlur();
 </script>
 </body>
 </html>
