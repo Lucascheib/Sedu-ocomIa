@@ -120,7 +120,7 @@
   .hero { text-align: center; }
   .hero h1 { font-size: clamp(22px, 7.2vw, 32px); text-wrap: balance; }
   .nowrap { white-space: nowrap; }
-  .hero p.lead { color: var(--muted-foreground); margin: 0 0 20px; }
+  .hero p.lead { color: var(--muted-foreground); margin: 0 0 20px; text-wrap: balance; }  /* linhas equilibradas, sem palavra sozinha no fim */
 
   /* Placeholders de imagem/vídeo (substitui pelos teus ficheiros) */
   .media {
@@ -173,7 +173,9 @@
   }
   .pillar p { margin: 4px 0 0; font-size: 14px; color: var(--muted-foreground); line-height: 1.45; }
 
-  .hero .compare { aspect-ratio: 2 / 3; box-shadow: 0 0 60px -10px rgba(255, 109, 0, 0.45); }
+  /* Quadrado e mais estreito, para caber no 1.º ecrã do telemóvel; mostra o topo dos prints (@, bio, notificações) */
+  .hero .compare { aspect-ratio: 1 / 1; width: min(100%, 300px); margin: 0 auto; box-shadow: 0 0 60px -10px rgba(255, 109, 0, 0.45); }
+  .hero .compare .media > img { object-position: top; }
   .hero .compare .tag { top: auto; bottom: 12px; }  /* no topo tapariam o @ e as notificações */
   .compare {
     position: relative; aspect-ratio: 4 / 5; border-radius: 16px; overflow: hidden;
@@ -374,7 +376,7 @@
   <section class="hero" id="topo">
     <span class="badge">⚡ Acesso imediato após a compra</span>
     <h1>Faz do teu Instagram uma <span class="text-primary nowrap">máquina de atrair miúdas giras</span> — com IA 100% gratuita.</h1>
-    <p class="lead">Mais de 500 prompts de IA prontos a usar que transformam um perfil comum num <strong>perfil atraente</strong> sem cara de IA. Copiar, colar e publicar.</p>
+    <p class="lead">Mais de 500 prompts de IA prontos a usar que transformam um perfil comum num <strong class="nowrap">perfil atraente</strong> sem cara de IA. Copiar, colar&nbsp;e&nbsp;publicar.</p>
 
     <div class="compare" role="slider" aria-label="Comparar antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
       <div class="media" data-label="Perfil DEPOIS (img/perfil-depois.webp)"><img src="img/perfil-depois.webp" alt="O mesmo perfil depois: fotos de estilo de vida, bio arrumada, 25 mensagens e 130 gostos" onerror="this.remove()"></div>
