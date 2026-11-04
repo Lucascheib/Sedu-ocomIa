@@ -237,6 +237,16 @@
   .stack-row small { display: block; color: var(--muted-foreground); font-size: 12.5px; margin-top: 2px; }
   .stack-row .val { font-size: 12px; text-align: right; white-space: nowrap; color: #6b6e77; }
   .stack-row .val span { display: block; color: var(--success); font-weight: 900; }
+  /* Bónus de sedução em destaque */
+  .stack-row.hot {
+    background: linear-gradient(90deg, rgba(255, 109, 0, 0.16), rgba(255, 109, 0, 0.03));
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  .hot-pill {
+    display: inline-block; margin-bottom: 5px; padding: 3px 9px; border-radius: 9999px;
+    background: var(--gradient-primary); color: var(--primary-foreground);
+    font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;
+  }
   .stack-group { padding: 10px 18px; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); background: rgba(255, 109, 0, 0.06); border-bottom: 1px solid var(--border); }
   .stack-total { padding: 18px; text-align: center; background: rgba(255, 109, 0, 0.06); }
   .stack-total .t1 { font-size: 13px; font-weight: 800; text-transform: uppercase; }
@@ -483,7 +493,7 @@
       <div id="stackBonus"></div>
       <div class="stack-total">
         <div class="t1">Valor dos bónus: <span data-bonus-total></span></div>
-        <div class="t2">+640 prompts no total</div>
+        <div class="t2">+615 prompts no total</div>
         <div class="t3">Tudo por <strong data-completo-price-inline></strong> — pagas uma vez só.</div>
       </div>
     </div>
@@ -517,7 +527,8 @@
         <div class="divider-title">O que levas</div>
         <ul class="features">
           <li data-check>+500 prompts Rosto Real</li>
-          <li data-check><span data-bonus-count></span> bónus exclusivos (+140 prompts e 2 guias)</li>
+          <li data-check><span data-bonus-count></span> bónus exclusivos (+115 prompts e 3 guias)</li>
+          <li data-check>Guias de mensagens, stories e conversa</li>
           <li data-check>Acesso vitalício</li>
         </ul>
 
@@ -541,6 +552,7 @@
           <li data-check-muted>+500 prompts</li>
           <li data-check-muted>Acesso vitalício</li>
           <li class="off" data-cross><span data-bonus-count></span> bónus exclusivos</li>
+          <li class="off" data-cross>Guias de mensagens, stories e conversa</li>
         </ul>
         <a class="btn btn-secondary" data-checkout="base" href="#">Quero o básico</a>
       </article>
@@ -592,7 +604,7 @@
         <div><dt>O que é</dt><dd>+500 prompts de IA que fazem do teu Instagram a montra de uma vida que elas querem conhecer — com a tua cara.</dd></div>
         <div><dt>Para quê</dt><dd>Para deixares de ficar no visto e de andar atrás delas. Que sejam elas a vir ter contigo.</dd></div>
         <div><dt>Como funciona</dt><dd>Copias, colas no ChatGPT ou no Gemini, carregas a tua selfie — em segundos tens uma foto nova.</dd></div>
-        <div><dt>O que levas</dt><dd>+640 prompts, <span data-bonus-count></span> bónus exclusivos e acesso vitalício.</dd></div>
+        <div><dt>O que levas</dt><dd>+615 prompts, <span data-bonus-count></span> bónus (com guias de mensagens, stories e conversa) e acesso vitalício.</dd></div>
         <div><dt>Garantia</dt><dd><span data-guarantee-days></span> dias. Se não gostares, devolvemos 100% do valor.</dd></div>
       </dl>
     </div>
@@ -666,7 +678,9 @@ const CONFIG = {
     checkoutAfter: "https://pay.hotmart.com/XXXXXXXX?off=COMPLETO_FULL"
   },
 
-  galleryCount: 14,                               // img/galeria-01.jpg … (15 e 16 existem mas são as mais fracas)
+  // Fotos da galeria, pela ordem em que aparecem (img/galeria-NN.jpg). Número par para a grelha de 2 ficar cheia.
+  // Fora: 05 (foto de casal), 14 (repete o carro do 2.º antes/depois), 15 e 16 (as mais fracas).
+  galleryItems: [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13],
   feedbackCount: 4,                               // img/feedback-01.webp … (prints reais, com autorização dos clientes)
 
   benefits: [
@@ -686,10 +700,11 @@ const CONFIG = {
     { title: "Pack Rosto Real",        desc: "+50 prompts que preservam 100% do teu rosto",                     value: 9.90 },
     { title: "Pack Viral",             desc: "+20 prompts dos estilos que mais param o scroll dela neste momento", value: 12.90 },
     { title: "Pack Stories e Reels",   desc: "+15 prompts verticais 9:16 para stories que convidam a reagir",   value: 7.90 },
-    { title: "Guia Selfie Perfeita",   desc: "As 4 regras que duplicam a qualidade de qualquer foto gerada",    value: 4.90 },
     { title: "Pack Identidade Visual", desc: "+30 prompts para um feed coerente, de homem com vida e estilo",   value: 12.90 },
-    { title: "Pack Ginásio e Corpo",   desc: "+25 prompts de físico, treino e lifestyle",                       value: 9.90 },
-    { title: "Guia Legenda Certeira",  desc: "10 legendas prontas que mais geram DMs e comentários",            value: 7.90 }
+    // Guias de sedução (hot: true) — aparecem no fim da lista de bónus, em destaque
+    { title: "Guia Do Visto ao Encontro",  desc: "O que dizer depois de ela reparar em ti: aberturas de DM, respostas aos stories dela e convites para um café", value: 14.90, hot: true },
+    { title: "Guia Stories que Atraem",    desc: "O que publicar nos stories, quando e por que ordem — para ela continuar a ver e a reagir",                    value: 9.90,  hot: true },
+    { title: "Guia Conversa com Conexão",  desc: "Como ler o perfil dela para encontrar assuntos, gerar conexão e nunca ficar sem conversa",                      value: 12.90, hot: true }
   ]
 };
 
@@ -774,16 +789,19 @@ function renderLists() {
   document.getElementById("stackMain").innerHTML = CONFIG.completoFeatures.map(f => `
     <div class="stack-row">${ICON_CHECK}<div><b>${f.title}</b><small>${f.desc}</small></div><span></span></div>`).join("");
 
-  document.getElementById("stackBonus").innerHTML = CONFIG.bonuses.map((b, i) => `
-    <div class="stack-row">${ICON_CHECK}<div><b>Bónus ${i + 1} — ${b.title}</b><small>${b.desc}</small></div>
+  // Packs de prompts primeiro; os bónus de sedução no fim, em destaque
+  const bonuses = [...CONFIG.bonuses.filter(b => !b.hot), ...CONFIG.bonuses.filter(b => b.hot)];
+  document.getElementById("stackBonus").innerHTML = bonuses.map((b, i) => `
+    <div class="stack-row${b.hot ? " hot" : ""}">${ICON_CHECK}<div>${b.hot ? '<span class="hot-pill">🔥 Sedução</span>' : ""}<b>Bónus ${i + 1} — ${b.title}</b><small>${b.desc}</small></div>
       <span class="val">valor ${fmt(b.value)}<span>GRÁTIS</span></span></div>`).join("");
 
-  const media = (prefix, n, label, ext, alt = "") => Array.from({ length: n }, (_, i) => {
-    const id = pad(i + 1);
+  const media = (prefix, ids, label, ext, alt = "") => ids.map(n => {
+    const id = pad(n);
     return `<div class="media" data-label="${label} ${id}"><img src="img/${prefix}-${id}.${ext}" alt="${alt}" loading="lazy" onerror="this.remove()"></div>`;
   }).join("");
-  document.getElementById("gallery").innerHTML = media("galeria", CONFIG.galleryCount, "Foto", "jpg");
-  document.getElementById("feedback").innerHTML = media("feedback", CONFIG.feedbackCount, "Print WhatsApp", "webp",
+  const upTo = n => Array.from({ length: n }, (_, i) => i + 1);
+  document.getElementById("gallery").innerHTML = media("galeria", CONFIG.galleryItems, "Foto", "jpg");
+  document.getElementById("feedback").innerHTML = media("feedback", upTo(CONFIG.feedbackCount), "Print WhatsApp", "webp",
     "Conversa de WhatsApp de um cliente com o antes e depois da sua foto");
 }
 
