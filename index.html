@@ -503,8 +503,8 @@
       <div id="stackBonus"></div>
       <div class="stack-total">
         <div class="t1">Valor dos bónus: <span data-bonus-total></span></div>
-        <!-- TODO: confirmar número final de prompts. Hoje: 500 no pack principal + 100 nos 3 packs bónus (50 + 20 + 30) = 600 no total. -->
-        <div class="t2">+600 prompts no total</div>
+        <!-- 500 no pack principal + 70 nos packs bónus (Rosto Real 50 + Viral 20) = 570 no total. -->
+        <div class="t2">+570 prompts no total</div>
         <div class="t3">Tudo por <strong data-completo-price-inline></strong> — pagas uma vez só.</div>
       </div>
     </div>
@@ -538,8 +538,8 @@
         <div class="divider-title">O que levas</div>
         <ul class="features">
           <li data-check>+500 prompts Rosto Real</li>
-          <li data-check><span data-bonus-count></span> bónus exclusivos (+100 prompts e 3 guias)</li>
-          <li data-check>Guias de mensagens, stories e conversa</li>
+          <li data-check><span data-bonus-count></span> bónus exclusivos (+70 prompts e 4 guias)</li>
+          <li data-check>Guias de bio, conversa e convite</li>
           <li data-check>Acesso vitalício</li>
         </ul>
 
@@ -563,7 +563,7 @@
           <li data-check-muted>+500 prompts</li>
           <li data-check-muted>Acesso vitalício</li>
           <li class="off" data-cross><span data-bonus-count></span> bónus exclusivos</li>
-          <li class="off" data-cross>Guias de mensagens, stories e conversa</li>
+          <li class="off" data-cross>Guias de bio, conversa e convite</li>
         </ul>
         <a class="btn btn-secondary" data-checkout="base" href="#">Quero o básico</a>
       </article>
@@ -616,7 +616,7 @@
         <div><dt>O que é</dt><dd>+500 prompts de IA que fazem do teu Instagram a montra de uma vida que elas querem conhecer — com a tua cara.</dd></div>
         <div><dt>Para quê</dt><dd>Para dares mais match no Tinder, deixares de ficar no visto no Instagram e de andar atrás delas. Que sejam elas a vir ter contigo.</dd></div>
         <div><dt>Como funciona</dt><dd>Copias, colas no ChatGPT ou no Gemini, carregas a tua selfie — em segundos tens uma foto nova.</dd></div>
-        <div><dt>O que levas</dt><dd>+600 prompts, <span data-bonus-count></span> bónus (com guias de mensagens, stories e conversa) e acesso vitalício.</dd></div>
+        <div><dt>O que levas</dt><dd>+570 prompts, <span data-bonus-count></span> bónus (com guias de bio, conversa e convite) e acesso vitalício.</dd></div>
         <div><dt>Garantia</dt><dd><span data-guarantee-days></span> dias. Se não gostares, devolvemos 100% do valor.</dd></div>
       </dl>
     </div>
@@ -709,13 +709,13 @@ const CONFIG = {
     { title: "Funciona no ChatGPT e no Gemini", desc: "Nas versões gratuitas — não pagas mais nada" }
   ],
   bonuses: [
-    { title: "Pack Rosto Real",        desc: "+50 prompts que preservam 100% do teu rosto",                     value: 9.90 },
-    { title: "Pack Viral",             desc: "+20 prompts dos estilos que mais param o scroll dela neste momento", value: 12.90 },
-    { title: "Pack Identidade Visual", desc: "+30 prompts para um feed coerente, de homem com vida e estilo",   value: 12.90 },
+    { title: "Pack Rosto Real: és tu, não um boneco de IA",    desc: "+50 prompts que preservam cada traço do teu rosto — a foto parece mesmo tu",            value: 9.90 },
+    { title: "Pack Viral: as fotos que param o scroll",        desc: "+20 prompts dos estilos de foto que mais reações geram neste momento",                   value: 12.90 },
+    { title: "Post sem Aviso de IA: publica sem etiqueta",     desc: "3 formas de limpar as tuas fotos em menos de 1 minuto, no telemóvel e de graça",          value: 9.90 },
     // Guias de sedução (hot: true) — aparecem no fim da lista de bónus, em destaque
-    { title: "Guia Do Visto ao Encontro",  desc: "O que dizer depois de ela reparar em ti: aberturas de DM, respostas aos stories dela e convites para um café", value: 14.90, hot: true },
-    { title: "Guia Stories que Atraem",    desc: "O que publicar nos stories, quando e por que ordem — para ela continuar a ver e a reagir",                    value: 9.90,  hot: true },
-    { title: "Guia Conversa com Conexão",  desc: "Como ler o perfil dela para encontrar assuntos, gerar conexão e nunca ficar sem conversa",                      value: 12.90, hot: true }
+    { title: "Bio que Atrai: o match vira conversa",           desc: "Bios, respostas aos prompts e exemplos prontos a copiar para o teu perfil no Tinder",     value: 12.90, hot: true },
+    { title: "Assuntos Coringa: nunca mais ficas sem conversa", desc: "50 perguntas prontas e o Método das 3 Pistas para encontrar assunto no perfil dela",       value: 12.90, hot: true },
+    { title: "Do Visto ao Encontro: do match ao café marcado", desc: "25 aberturas prontas, o que fazer quando ela não responde e 8 convites com sítios reais",  value: 14.90, hot: true }
   ]
 };
 
