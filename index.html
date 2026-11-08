@@ -719,9 +719,46 @@ const CONFIG = {
   ]
 };
 
-/* Scripts de tracking (Meta Pixel, Utmify, GA…) — só carregam depois do "Aceitar" (RGPD). */
+/* Scripts de tracking — só carregam depois do "Aceitar" no aviso de cookies (RGPD).
+   Meta Pixel: põe o ID em PIXEL_ID. Eventos enviados daqui:
+   - PageView: ao aceitar os cookies (ou ao abrir a página, se já tinha aceitado)
+   - ViewContent: quando a secção da oferta aparece no ecrã
+   - InitiateCheckout: ao clicar num botão de compra (Básico ou Completo)
+   A compra (Purchase) é registada pelo Hotmart: põe o mesmo Pixel nas definições do produto no Hotmart. */
+const PIXEL_ID = "2301486640584838";
+let trackingLoaded = false;
+
 function loadTracking() {
-  // Cola aqui o código do Pixel / Utmify (sem as tags <script>).
+  if (trackingLoaded || !PIXEL_ID) return;
+  trackingLoaded = true;
+
+  /* Código base do Meta Pixel */
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq("init", PIXEL_ID);
+  fbq("track", "PageView");
+
+  // ViewContent quando a oferta aparece no ecrã (uma vez)
+  const oferta = document.getElementById("oferta");
+  if (oferta && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) {
+        fbq("track", "ViewContent", { content_name: "Perfil Brutal", currency: "EUR", value: completoPrice });
+        io.disconnect();
+      }
+    }, { threshold: 0.2 });
+    io.observe(oferta);
+  }
+
+  // InitiateCheckout ao clicar num botão de compra
+  document.querySelectorAll("[data-checkout]").forEach(a => a.addEventListener("click", () => {
+    const plano = a.dataset.checkout;
+    const value = plano === "base" ? CONFIG.base.price : completoPrice;
+    fbq("track", "InitiateCheckout", { content_name: plano === "base" ? "Perfil Brutal — Básico" : CONFIG.productName, currency: "EUR", value });
+  }));
 }
 
 /* ========================================================= */
