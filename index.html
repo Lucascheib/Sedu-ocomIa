@@ -729,8 +729,19 @@ const PIXEL_ID = "2301486640584838";
 let trackingLoaded = false;
 
 function loadTracking() {
-  if (trackingLoaded || !PIXEL_ID) return;
+  if (trackingLoaded) return;
   trackingLoaded = true;
+
+  /* Utmify (UTMs): guarda as UTMs do anúncio e passa-as para o checkout do Hotmart.
+     É o mesmo que o script ofuscado da Utmify, em versão legível. */
+  const utm = document.createElement("script");
+  utm.src = "https://cdn.utmify.com.br/scripts/utms/latest.js";
+  utm.async = true;
+  utm.defer = true;
+  utm.setAttribute("data-utmify-prevent-subids", "");
+  (document.head || document.documentElement).appendChild(utm);
+
+  if (!PIXEL_ID) return;
 
   /* Código base do Meta Pixel */
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
