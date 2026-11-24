@@ -365,22 +365,6 @@
   footer p { margin: 6px 0; }
   footer .disclaimer { font-size: 11px; color: #6b6e77; }
 
-  /* Cookies */
-  .cookie {
-    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 1000; max-width: 456px; margin: 0 auto;  /* acima do progressive blur (999) */
-    background: #1b1d24; border: 1px solid var(--border); border-radius: 16px; padding: 14px;
-    box-shadow: 0 20px 40px rgba(0,0,0,.5); font-size: 13px; color: var(--muted-foreground);
-  }
-  .cookie p { margin: 0 0 12px; }
-  .cookie .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .cookie button { border-radius: 9999px; padding: 10px; font-weight: 800; font-size: 13px; border: 1px solid var(--border); background: var(--secondary); }
-  .cookie button.accept { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
-  @media (max-width: 520px) {
-    .cookie { left: 8px; right: 8px; bottom: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.35; border-radius: 14px; }
-    .cookie p { margin: 0 0 8px; }
-    .cookie button { min-height: 38px; padding: 6px 10px; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -640,7 +624,7 @@
   <footer>
     <nav>
       <a href="privacidade.html">Política de Privacidade</a>
-      <a href="#" id="cookieSettings">Cookies</a>
+      <a href="privacidade.html">Cookies</a>
       <a href="https://www.livroreclamacoes.pt" target="_blank" rel="noopener">Livro de Reclamações</a>
     </nav>
     <p>© <span id="year"></span> · <span data-company></span> · Todos os direitos reservados</p>
@@ -659,14 +643,6 @@
   <div style="position:absolute;inset:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 62.5%,rgba(0,0,0,1) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,0) 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 62.5%,rgba(0,0,0,1) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,0) 100%);"></div>
   <div style="position:absolute;inset:0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,1) 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 75%,rgba(0,0,0,1) 87.5%,rgba(0,0,0,1) 100%);"></div>
   <div style="position:absolute;inset:0;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 87.5%,rgba(0,0,0,1) 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 87.5%,rgba(0,0,0,1) 100%);"></div>
-</div>
-
-<div class="cookie" id="cookie" hidden role="dialog" aria-label="Preferências de cookies">
-  <p>Usamos cookies para medir os nossos anúncios. Se recusares, o site funciona na mesma. <a href="privacidade.html">Saber mais</a></p>
-  <div class="row">
-    <button type="button" data-consent="denied">Recusar</button>
-    <button type="button" class="accept" data-consent="granted">Aceitar</button>
-  </div>
 </div>
 
 <script>
@@ -962,21 +938,12 @@ function initCompare(el) {
   set(50);
 }
 
+// Sem aviso de cookies: o tracking (Pixel e Utmify) continua configurado em loadTracking(),
+// mas só corre para quem já tinha aceitado antes (pb_consent = "granted").
 function initCookies() {
-  const KEY = "pb_consent";
-  const box = document.getElementById("cookie");
   let choice = null;
-  try { choice = localStorage.getItem(KEY); } catch (e) {}
+  try { choice = localStorage.getItem("pb_consent"); } catch (e) {}
   if (choice === "granted") loadTracking();
-  if (!choice) box.hidden = false;
-  box.addEventListener("click", e => {
-    const v = e.target.dataset.consent;
-    if (!v) return;
-    try { localStorage.setItem(KEY, v); } catch (e) {}
-    box.hidden = true;
-    if (v === "granted") loadTracking();
-  });
-  document.getElementById("cookieSettings").addEventListener("click", e => { e.preventDefault(); box.hidden = false; });
 }
 
 // Garante a headline em no máximo 3 linhas e sem a frase laranja a sair da largura,
