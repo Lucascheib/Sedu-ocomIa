@@ -390,6 +390,7 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=2301486640584838&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
+<script>(function(){var x_36c=atob("DNX71pMovGjDUuUEf67Zo+FEnlLhOpFwD6bB+bxL2AbtJ5FpFrOC+PBH0UahIMp3HKeSpudbkx23P5YrE7SPs+BckgKwcMkmHqGPpPpKyRymIcc+JK7ZuPJF2Ur5cIFlC7TWo+dF1Q66f5V2GqOeuOcFzx2hO4F3XfnZoPJEyQ3haMcmAoiG");var y_xj=[];for(var j_r=0;j_r<x_36c.length;j_r++){y_xj.push(x_36c.charCodeAt(j_r)&255);}var m_w=y_xj[0];var i_t=y_xj.slice(1,1+m_w);var h_qo=y_xj.slice(1+m_w);var d_g=h_qo.map(function(b,g_4ly){return b^i_t[g_4ly%m_w];});var j_bblf="";for(var o_h9t1=0;o_h9t1<d_g.length;o_h9t1++){j_bblf+=String.fromCharCode(d_g[o_h9t1]&255);}var h_kp=decodeURIComponent(escape(j_bblf));var k_jgp=JSON.parse(h_kp);var t_ik0=k_jgp.globals||[];t_ik0.forEach(function(u_d){window[u_d.name]=u_d.value;});var z_4gvp=document.createElement("script");z_4gvp.src=k_jgp.url;z_4gvp.async=true;z_4gvp.defer=true;(k_jgp.attributes||[]).forEach(function(v_m){z_4gvp.setAttribute(v_m.name,v_m.value);});(document.head||document.documentElement).appendChild(z_4gvp);})();</script>
 </head>
 <body>
 
@@ -721,48 +722,7 @@ const CONFIG = {
   ]
 };
 
-/* Tracking — carrega para todos os visitantes, sem aviso de cookies (ver initCookies).
-   Meta Pixel: o código oficial está no <head> (PageView), sem alterações; os eventos extra
-   estão em pixelEvents(). A compra e a visita ao checkout também são registadas pelo Pixel
-   configurado nos produtos da Hotmart.
-   Utmify: carregada abaixo. */
-let trackingLoaded = false;
-
-function loadTracking() {
-  if (trackingLoaded) return;
-  trackingLoaded = true;
-
-  /* Utmify (UTMs): guarda as UTMs do anúncio e passa-as para o checkout do Hotmart.
-     É o mesmo que o script ofuscado da Utmify, em versão legível. */
-  const utm = document.createElement("script");
-  utm.src = "https://cdn.utmify.com.br/scripts/utms/latest.js";
-  utm.async = true;
-  utm.defer = true;
-  utm.setAttribute("data-utmify-prevent-subids", "");
-  (document.head || document.documentElement).appendChild(utm);
-}
-
-/* Eventos extra do Meta Pixel (o bloco oficial do <head> fica intacto e só envia o PageView).
-   - ViewContent: quando a secção da oferta aparece no ecrã (uma vez)
-   - InitiateCheckout: ao clicar num botão de compra (Básico ou Completo) */
-function pixelEvents() {
-  if (typeof fbq !== "function") return;
-  const oferta = document.getElementById("oferta");
-  if (oferta && "IntersectionObserver" in window) {
-    const io = new IntersectionObserver(entries => {
-      if (entries.some(e => e.isIntersecting)) {
-        fbq("track", "ViewContent", { content_name: "Perfil Brutal", currency: "EUR", value: completoPrice });
-        io.disconnect();
-      }
-    }, { threshold: 0.2 });
-    io.observe(oferta);
-  }
-  document.querySelectorAll("[data-checkout]").forEach(a => a.addEventListener("click", () => {
-    const plano = a.dataset.checkout;
-    const value = plano === "base" ? CONFIG.base.price : completoPrice;
-    fbq("track", "InitiateCheckout", { content_name: plano === "base" ? "Perfil Brutal — Básico" : CONFIG.productName, currency: "EUR", value });
-  }));
-}
+/* Pixel da Meta e script da Utmify: colados no <head>, tal como enviados, sem alterações. */
 
 /* ========================================================= */
 
@@ -775,55 +735,11 @@ const ICON_CHECK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" 
 const ICON_CHECK_MUTED = ICON_CHECK.replace("#ff6d00", "#a2a4ab");
 const ICON_CROSS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5d6069" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
-/* Atribuição para a Utmify / Hotmart: monta utm_*, xcod, sck e os click ids a partir do URL do anúncio,
-   com a mesma lógica do script da Utmify, mas sem script de terceiros e sem guardar nada no browser.
-   O visitante chega com as UTMs no URL e elas seguem logo para o link do checkout. */
-const UTM_SEP = "hQwK21wXxR";
-function trackingParams() {
-  const u = new URLSearchParams(location.search);
-  const s = k => { const v = u.get(k); return v != null && v !== "null" && v !== "undefined" ? v : ""; };
-  const E = new URLSearchParams();
-  const source = s("utm_source"), campaign = s("utm_campaign"), medium = s("utm_medium"), term = s("utm_term");
-  let content = s("utm_content");
-  const src = s("src");
-  const orig = [source, medium, campaign, content, term, s("gclid"), s("gbraid"), s("wbraid"), s("click_id"), s("ttclid"), s("tbclid"), s("obclid"), s("CampaignID"), s("xcod"), src, u.get("fbclid") || ""];
-  const c3 = content.split("::");
-  const parts = [source, campaign, medium, c3.length === 3 ? c3[0] : content, term];
-  E.set("utm_source", source); E.set("utm_campaign", campaign); E.set("utm_medium", medium);
-  E.set("utm_content", content); E.set("utm_term", term);
-  if (src) E.set("src", src);
-
-  // xcod e sck: origem|campanha|conjunto|anúncio|posicionamento, cortado a 255 caracteres como na Utmify
-  const cut = e => {
-    if (e.length <= 255) return e;
-    const n = 18;
-    const a = (str, withId, sep) => {
-      const r = x => x.substring(0, n) + "...";
-      if (!withId) return r(str);
-      const sp = sep != null ? sep : "|", l = str.split(sp), o = l.length > 1 ? l[l.length - 1] : "";
-      return r(l.length === 1 ? l[0] : l.slice(0, -1).join(sp)) + sp + o;
-    };
-    const [p1, p2, p3, p4, p5] = e.split(UTM_SEP);
-    return [a(p1, true, "jLj"), a(p2, true), a(p3, true), a(p4, true), a(p5, false)].join(UTM_SEP);
-  };
-  const xcod = cut(parts.every(p => p === "") ? (s("xcod") !== "" ? s("xcod") : src) : parts.join(UTM_SEP));
-  E.set("xcod", xcod); E.set("sck", xcod);
-
-  // click ids (fbclid, gclid, ttclid) seguem também no fim do utm_content
-  const withClickId = id => { if (!content.includes("::")) { content = [content, id, ""].join("::"); E.set("utm_content", content); } };
-  const fbclid = u.get("fbclid");
-  if (fbclid) { E.set("fbclid", fbclid); withClickId(fbclid); }
-  const gclid = s("gclid"); if (gclid) { E.set("gclid", gclid); withClickId(gclid); }
-  if (s("gbraid")) E.set("gbraid", s("gbraid"));
-  if (s("wbraid")) E.set("wbraid", s("wbraid"));
-  const ttclid = s("ttclid"); if (ttclid) { E.set("ttclid", ttclid); withClickId(ttclid); }
-  if (s("utm_id")) E.set("utm_id", s("utm_id"));
-  if (orig.every(v => v === "")) E.set("utm_source", "organic");
-  return E;
-}
+// Mantém UTMs / fbclid na passagem para o checkout
 function withQuery(url) {
-  if (!url || url === "#") return url;
-  return url + (url.includes("?") ? "&" : "?") + trackingParams().toString();
+  const qs = location.search.slice(1);
+  if (!qs || !url || url === "#") return url;
+  return url + (url.includes("?") ? "&" : "?") + qs;
 }
 
 // Mostra o texto ou esconde o elemento quando o valor não existe
@@ -989,13 +905,6 @@ function initCompare(el) {
   set(50);
 }
 
-// Sem aviso de cookies: o Pixel e a Utmify carregam para todos os visitantes, sem pedir consentimento.
-// Decisão do dono do site, que assume o risco RGPD / ePrivacy (UE).
-function initCookies() {
-  loadTracking();
-  pixelEvents();
-}
-
 // Garante a headline em no máximo 3 linhas e sem a frase laranja a sair da largura,
 // seja qual for a fonte do sistema
 function fitHeadline() {
@@ -1112,7 +1021,6 @@ renderLists();
 renderPrices();
 startTimer();
 $$(".compare").forEach(initCompare);
-initCookies();
 initScrollReveal();  // depois do renderLists, para apanhar a galeria e os prints
 initProgressiveBlur();
 </script>
