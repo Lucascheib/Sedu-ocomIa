@@ -768,11 +768,55 @@ const ICON_CHECK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" 
 const ICON_CHECK_MUTED = ICON_CHECK.replace("#ff6d00", "#a2a4ab");
 const ICON_CROSS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5d6069" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
-// Mantém UTMs / fbclid na passagem para o checkout
+/* Atribuição para a Utmify / Hotmart: monta utm_*, xcod, sck e os click ids a partir do URL do anúncio,
+   com a mesma lógica do script da Utmify, mas sem script de terceiros e sem guardar nada no browser.
+   O visitante chega com as UTMs no URL e elas seguem logo para o link do checkout. */
+const UTM_SEP = "hQwK21wXxR";
+function trackingParams() {
+  const u = new URLSearchParams(location.search);
+  const s = k => { const v = u.get(k); return v != null && v !== "null" && v !== "undefined" ? v : ""; };
+  const E = new URLSearchParams();
+  const source = s("utm_source"), campaign = s("utm_campaign"), medium = s("utm_medium"), term = s("utm_term");
+  let content = s("utm_content");
+  const src = s("src");
+  const orig = [source, medium, campaign, content, term, s("gclid"), s("gbraid"), s("wbraid"), s("click_id"), s("ttclid"), s("tbclid"), s("obclid"), s("CampaignID"), s("xcod"), src, u.get("fbclid") || ""];
+  const c3 = content.split("::");
+  const parts = [source, campaign, medium, c3.length === 3 ? c3[0] : content, term];
+  E.set("utm_source", source); E.set("utm_campaign", campaign); E.set("utm_medium", medium);
+  E.set("utm_content", content); E.set("utm_term", term);
+  if (src) E.set("src", src);
+
+  // xcod e sck: origem|campanha|conjunto|anúncio|posicionamento, cortado a 255 caracteres como na Utmify
+  const cut = e => {
+    if (e.length <= 255) return e;
+    const n = 18;
+    const a = (str, withId, sep) => {
+      const r = x => x.substring(0, n) + "...";
+      if (!withId) return r(str);
+      const sp = sep != null ? sep : "|", l = str.split(sp), o = l.length > 1 ? l[l.length - 1] : "";
+      return r(l.length === 1 ? l[0] : l.slice(0, -1).join(sp)) + sp + o;
+    };
+    const [p1, p2, p3, p4, p5] = e.split(UTM_SEP);
+    return [a(p1, true, "jLj"), a(p2, true), a(p3, true), a(p4, true), a(p5, false)].join(UTM_SEP);
+  };
+  const xcod = cut(parts.every(p => p === "") ? (s("xcod") !== "" ? s("xcod") : src) : parts.join(UTM_SEP));
+  E.set("xcod", xcod); E.set("sck", xcod);
+
+  // click ids (fbclid, gclid, ttclid) seguem também no fim do utm_content
+  const withClickId = id => { if (!content.includes("::")) { content = [content, id, ""].join("::"); E.set("utm_content", content); } };
+  const fbclid = u.get("fbclid");
+  if (fbclid) { E.set("fbclid", fbclid); withClickId(fbclid); }
+  const gclid = s("gclid"); if (gclid) { E.set("gclid", gclid); withClickId(gclid); }
+  if (s("gbraid")) E.set("gbraid", s("gbraid"));
+  if (s("wbraid")) E.set("wbraid", s("wbraid"));
+  const ttclid = s("ttclid"); if (ttclid) { E.set("ttclid", ttclid); withClickId(ttclid); }
+  if (s("utm_id")) E.set("utm_id", s("utm_id"));
+  if (orig.every(v => v === "")) E.set("utm_source", "organic");
+  return E;
+}
 function withQuery(url) {
-  const qs = location.search.slice(1);
-  if (!qs || !url || url === "#") return url;
-  return url + (url.includes("?") ? "&" : "?") + qs;
+  if (!url || url === "#") return url;
+  return url + (url.includes("?") ? "&" : "?") + trackingParams().toString();
 }
 
 // Mostra o texto ou esconde o elemento quando o valor não existe
