@@ -722,8 +722,9 @@ const CONFIG = {
 };
 
 /* Tracking — carrega para todos os visitantes, sem aviso de cookies (ver initCookies).
-   Meta Pixel: o código oficial está no <head> (PageView). A compra e a visita ao checkout
-   são registadas pelo Pixel configurado nos produtos da Hotmart.
+   Meta Pixel: o código oficial está no <head> (PageView), sem alterações; os eventos extra
+   estão em pixelEvents(). A compra e a visita ao checkout também são registadas pelo Pixel
+   configurado nos produtos da Hotmart.
    Utmify: carregada abaixo. */
 let trackingLoaded = false;
 
@@ -739,6 +740,28 @@ function loadTracking() {
   utm.defer = true;
   utm.setAttribute("data-utmify-prevent-subids", "");
   (document.head || document.documentElement).appendChild(utm);
+}
+
+/* Eventos extra do Meta Pixel (o bloco oficial do <head> fica intacto e só envia o PageView).
+   - ViewContent: quando a secção da oferta aparece no ecrã (uma vez)
+   - InitiateCheckout: ao clicar num botão de compra (Básico ou Completo) */
+function pixelEvents() {
+  if (typeof fbq !== "function") return;
+  const oferta = document.getElementById("oferta");
+  if (oferta && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) {
+        fbq("track", "ViewContent", { content_name: "Perfil Brutal", currency: "EUR", value: completoPrice });
+        io.disconnect();
+      }
+    }, { threshold: 0.2 });
+    io.observe(oferta);
+  }
+  document.querySelectorAll("[data-checkout]").forEach(a => a.addEventListener("click", () => {
+    const plano = a.dataset.checkout;
+    const value = plano === "base" ? CONFIG.base.price : completoPrice;
+    fbq("track", "InitiateCheckout", { content_name: plano === "base" ? "Perfil Brutal — Básico" : CONFIG.productName, currency: "EUR", value });
+  }));
 }
 
 /* ========================================================= */
@@ -970,6 +993,7 @@ function initCompare(el) {
 // Decisão do dono do site, que assume o risco RGPD / ePrivacy (UE).
 function initCookies() {
   loadTracking();
+  pixelEvents();
 }
 
 // Garante a headline em no máximo 3 linhas e sem a frase laranja a sair da largura,
