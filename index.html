@@ -704,9 +704,9 @@ const CONFIG = {
   ]
 };
 
-/* Scripts de tracking — só carregam depois do "Aceitar" no aviso de cookies (RGPD).
+/* Scripts de tracking — carregam para todos os visitantes, sem aviso de cookies (ver initCookies).
    Meta Pixel: põe o ID em PIXEL_ID. Eventos enviados daqui:
-   - PageView: ao aceitar os cookies (ou ao abrir a página, se já tinha aceitado)
+   - PageView: ao abrir a página
    - ViewContent: quando a secção da oferta aparece no ecrã
    - InitiateCheckout: ao clicar num botão de compra (Básico ou Completo)
    A compra (Purchase) é registada pelo Hotmart: põe o mesmo Pixel nas definições do produto no Hotmart. */
@@ -982,12 +982,10 @@ function initCompare(el) {
   set(50);
 }
 
-// Sem aviso de cookies: o tracking (Pixel e Utmify) continua configurado em loadTracking(),
-// mas só corre para quem já tinha aceitado antes (pb_consent = "granted").
+// Sem aviso de cookies: o Pixel e a Utmify carregam para todos os visitantes, sem pedir consentimento.
+// Decisão do dono do site, que assume o risco RGPD / ePrivacy (UE).
 function initCookies() {
-  let choice = null;
-  try { choice = localStorage.getItem("pb_consent"); } catch (e) {}
-  if (choice === "granted") loadTracking();
+  loadTracking();
 }
 
 // Garante a headline em no máximo 3 linhas e sem a frase laranja a sair da largura,
