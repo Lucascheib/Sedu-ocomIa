@@ -375,11 +375,20 @@
   .cookie .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .cookie button { border-radius: 9999px; padding: 10px; font-weight: 800; font-size: 13px; border: 1px solid var(--border); background: var(--secondary); }
   .cookie button.accept { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
+  @media (max-width: 520px) {
+    .cookie { left: 8px; right: 8px; bottom: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.35; border-radius: 14px; }
+    .cookie p { margin: 0 0 8px; }
+    .cookie button { min-height: 38px; padding: 6px 10px; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
+<!-- Vercel Web Analytics: conta visitas sem cookies e sem identificar ninguém, por isso não depende do "Aceitar".
+     Só funciona depois de ativar Analytics no projeto da Vercel e publicar de novo. -->
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -653,7 +662,7 @@
 </div>
 
 <div class="cookie" id="cookie" hidden role="dialog" aria-label="Preferências de cookies">
-  <p>Usamos cookies para medir o desempenho dos nossos anúncios. Podes aceitar ou recusar — o site funciona na mesma. <a href="privacidade.html">Saber mais</a></p>
+  <p>Usamos cookies para medir os nossos anúncios. Se recusares, o site funciona na mesma. <a href="privacidade.html">Saber mais</a></p>
   <div class="row">
     <button type="button" data-consent="denied">Recusar</button>
     <button type="button" class="accept" data-consent="granted">Aceitar</button>
