@@ -373,6 +373,23 @@
      Só funciona depois de ativar Analytics no projeto da Vercel e publicar de novo. -->
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2301486640584838');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2301486640584838&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -704,13 +721,10 @@ const CONFIG = {
   ]
 };
 
-/* Scripts de tracking — carregam para todos os visitantes, sem aviso de cookies (ver initCookies).
-   Meta Pixel: põe o ID em PIXEL_ID. Eventos enviados daqui:
-   - PageView: ao abrir a página
-   - ViewContent: quando a secção da oferta aparece no ecrã
-   - InitiateCheckout: ao clicar num botão de compra (Básico ou Completo)
-   A compra (Purchase) é registada pelo Hotmart: põe o mesmo Pixel nas definições do produto no Hotmart. */
-const PIXEL_ID = "2301486640584838";
+/* Tracking — carrega para todos os visitantes, sem aviso de cookies (ver initCookies).
+   Meta Pixel: o código oficial está no <head> (PageView). A compra e a visita ao checkout
+   são registadas pelo Pixel configurado nos produtos da Hotmart.
+   Utmify: carregada abaixo. */
 let trackingLoaded = false;
 
 function loadTracking() {
@@ -725,36 +739,6 @@ function loadTracking() {
   utm.defer = true;
   utm.setAttribute("data-utmify-prevent-subids", "");
   (document.head || document.documentElement).appendChild(utm);
-
-  if (!PIXEL_ID) return;
-
-  /* Código base do Meta Pixel */
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-  document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  fbq("init", PIXEL_ID);
-  fbq("track", "PageView");
-
-  // ViewContent quando a oferta aparece no ecrã (uma vez)
-  const oferta = document.getElementById("oferta");
-  if (oferta && "IntersectionObserver" in window) {
-    const io = new IntersectionObserver(entries => {
-      if (entries.some(e => e.isIntersecting)) {
-        fbq("track", "ViewContent", { content_name: "Perfil Brutal", currency: "EUR", value: completoPrice });
-        io.disconnect();
-      }
-    }, { threshold: 0.2 });
-    io.observe(oferta);
-  }
-
-  // InitiateCheckout ao clicar num botão de compra
-  document.querySelectorAll("[data-checkout]").forEach(a => a.addEventListener("click", () => {
-    const plano = a.dataset.checkout;
-    const value = plano === "base" ? CONFIG.base.price : completoPrice;
-    fbq("track", "InitiateCheckout", { content_name: plano === "base" ? "Perfil Brutal — Básico" : CONFIG.productName, currency: "EUR", value });
-  }));
 }
 
 /* ========================================================= */
